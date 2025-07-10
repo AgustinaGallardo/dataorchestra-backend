@@ -1,0 +1,73 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Company {
+  id         Int           @id @default(autoincrement())
+  name       String
+  type       String?
+  createdAt  DateTime      @default(now())
+  users      UserAccount[]
+  excelFiles ExcelFile[]
+}
+
+model UserAccount {
+  id           Int           @id @default(autoincrement())
+  name         String
+  email        String        @unique
+  passwordHash String
+  role         String?
+  company      Company       @relation(fields: [companyId], references: [id])
+  companyId    Int
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  excelFiles   ExcelFile[]
+  auditLogs    AuditLog[]
+}
+
+model ExcelFile {
+  id           Int           @id @default(autoincrement())
+  originalName String
+  uploadDate   DateTime      @default(now())
+  user         UserAccount   @relation(fields: [userId], references: [id])
+  userId       Int
+  company      Company       @relation(fields: [companyId], references: [id])
+  companyId    Int
+  status       String?
+  metadata     Json?
+  sheets       ExcelSheet[]
+}
+
+model ExcelSheet {
+  id         Int           @id @default(autoincrement())
+  file       ExcelFile     @relation(fields: [fileId], references: [id])
+  fileId     Int
+  sheetName  String?
+  sheetIndex Int?
+  rows       NormalizedRow[]
+}
+
+model NormalizedRow {
+  id        Int        @id @default(autoincrement())
+  sheet     ExcelSheet @relation(fields: [sheetId], references: [id])
+  sheetId   Int
+  rowData   Json
+  rowNumber Int?
+}
+
+model AuditLog {
+  id        Int         @id @default(autoincrement())
+  user      UserAccount @relation(fields: [userId], references: [id])
+  userId    Int
+  action    String
+  entity    String
+  entityId  Int?
+  details   Json?
+  createdAt DateTime    @default(now())
+}
