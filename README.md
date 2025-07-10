@@ -29,7 +29,6 @@ npm run start:dev
 - `/company` - CRUD de empresas
 - `/user-account` - CRUD de usuarios
 - `/excel-file` - Gestión de archivos Excel
-- *(agrega aquí los endpoints que vayas creando)*
 
 ## Convenciones
 
